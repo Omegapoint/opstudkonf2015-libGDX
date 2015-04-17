@@ -15,9 +15,14 @@ public class DesktopLauncher {
         config.width = 1280;
         config.height = 720;
 
-		//new LwjglApplication(new OpStudentLibGdx(), config);
+
+        /**
+         * This is where a game is loaded. By changing here, different demos will be loaded.
+         *
+         */
+		new LwjglApplication(new OpStudentLibGdx(), config);
         //new LwjglApplication(new HelloWorldGame(), config);
         //new LwjglApplication(new CameraAndInputGame(), config);
-        new LwjglApplication(new Box2dGame(), config);
+        //new LwjglApplication(new Box2dGame(), config);
 	}
 }

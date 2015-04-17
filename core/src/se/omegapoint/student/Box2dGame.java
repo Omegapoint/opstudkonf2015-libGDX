@@ -2,13 +2,16 @@ package se.omegapoint.student;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.utils.Logger;
 
 /**
  * Box2D is a 2D physics library, not only used in libGDX. Games such as Angry Birds and Tiny Wings has been written in Box2D.
@@ -94,9 +97,13 @@ public class Box2dGame extends ApplicationAdapter {
         fixtureDef.shape = circleShape;
         fixtureDef.restitution = 0.5f;
 
+        /**
+         * Create some ball objects
+         */
         for(int i = 5; i < 25; i++){
             for(int k = 15; k < 30; k++){
-                bodyDef.position.set(i,k);
+                float offset = (MathUtils.random(0,1) == 1) ? 0.2f : 0;
+                bodyDef.position.set(i+offset,k);
                 ballBody = world.createBody(bodyDef);
                 ballBody.createFixture(fixtureDef);
             }
@@ -106,12 +113,50 @@ public class Box2dGame extends ApplicationAdapter {
 
     }
 
+    private void handleInput() {
 
 
+        /**
+         * Creates balls on input coordinates.
+         *
+         */
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+
+            //Calculate proportion between screen size and camera.
+            float xprop = (cam.viewportWidth/Gdx.graphics.getWidth());
+            float yprop = (cam.viewportHeight/Gdx.graphics.getHeight());
+
+            final float xpos = Gdx.input.getX();
+            final float  ypos =Gdx.input.getY();
+
+            BodyDef bodyDef = new BodyDef();
+            //Y input seems to be opposite direction, therefore the subtraction.
+            bodyDef.position.set(xpos * xprop, cam.viewportHeight - ypos * yprop);
+            bodyDef.type = BodyType.DynamicBody;
+            FixtureDef fixtureDef = new FixtureDef();
+            CircleShape circleShape = new CircleShape();
+            //Set random radius.
+            circleShape.setRadius((float)(MathUtils.random(1,10)/20.0));
+            fixtureDef.shape = circleShape;
+            fixtureDef.restitution = 0.9f;
+
+            //bodyDef.position.set(i+offset,k);
+            Body ballBody = world.createBody(bodyDef);
+            ballBody.createFixture(fixtureDef);
+
+        }
 
 
+    }
+
+
+    /**
+     * Handles input, lets to world calculate physics and finally render the screen with a debug renderer.
+     *
+     */
 	@Override
 	public void render () {
+        handleInput();
         world.step(1/60f, 6, 2);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         debugRenderer.render(world, cam.combined);
